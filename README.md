@@ -8,8 +8,11 @@
 * jQuery
 * fontAwasome
 
-## How to use:
-* Download and extract project on your server
+## Getting started / Installation:
+* Download and extract project on your server OR clone by running below command:
+    ```
+    git clone https://github.com/souravdutt/laravel-admin-panel-with-auth.git
+    ```
 * Create a databse (if not created yet) and make changes to .env file accordingly
 * open project root directory and run following commands:
 
@@ -19,5 +22,13 @@
     ```
     php artisan migrate
     ```
-    
+* Seed users (1 admin role, 9 users role) by following command:
+    ```
+    php artisan db:seed --class=UserSeeder
+    ```
+* Open project in browser and login as admin:
+  - email: ```admin@panel.com```
+  - password: ```password```
+  
 ##### That's all, your Admin Panel with SignIn and SignUp is ready to use. 
+

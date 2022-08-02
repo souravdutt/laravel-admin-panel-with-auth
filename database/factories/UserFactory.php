@@ -12,16 +12,29 @@ class UserFactory extends Factory
      *
      * @return array
      */
+    private $admin = false;
+
     public function definition()
     {
-        return [
-            'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'email_verified_at' => now(),
+        $data = [
+            'name' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'mobile' => $this->faker->unique()->phoneNumber,
+            'email_verified_at' => $this->faker->randomElement([now(), null]),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
         ];
-    }
+
+        if(!$this->admin){
+            $this->admin = true;
+            $data['role'] = 'admin';
+            $data['email'] = 'admin@panel.com';
+            return $data;
+        }
+
+        $data['role'] = 'user';
+        return $data;
+}
 
     /**
      * Indicate that the model's email address should be unverified.
