@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Token;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -99,19 +102,97 @@ class UserController extends Controller
     public function forgotPasswordSubmit(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email|max:100',
+            'email' => 'required|email',
         ]);
 
         $user = User::where('email', $request->email)->first();
 
         if($user) {
-            $user->password = Hash::make(str_random(8));
-            $user->save();
+            $token = Str::random(100);
 
-            return redirect()->route('signin')->with('success', 'Password reset successful! Please check your email.');
+            Token::where('user_id', $user->id)->delete();
+
+            $save_token = new Token();
+            $save_token->user_id = $user->id;
+            $save_token->token = $token;
+            $save_token->type = 'reset_password';
+            $save_token->expire_at = now()->addHours(4);
+            $save_token->is_expired = 0;
+            if($save_token->save()){
+
+                $data = ['name' => $user->name, 'link' => route('resetPassword').('?email='.$user->email.'&_token='.$token)];
+
+                Mail::send('emails.forgot-password', $data, function($message) use ($user){
+                    $message->to($user->email, $user->name)
+                        ->subject('Reset Password | ' . env('APP_NAME'))
+                        ->from(env('MAIL_FROM_ADDRESS', 'test@panel.com'), env('APP_NAME'));
+                });
+
+                $user->password = Hash::make($token);
+                $user->save();
+
+                return redirect()->route('signin')->with('success', 'Congrats! Request generated successfully, please check your email.');
+            }
+
+            return redirect()->back()->with('error', 'Sorry, Error while generating token.');
         }
 
         return redirect()->back()->with('error', 'Sorry, given email not registered with us.');
     }
 
+    public function resetPassword(Request $req)
+    {
+        if(empty(trim($req->email)) || empty(trim($req->_token)))
+            return redirect()->route('signin')->with(['error' => 'Oops! Invalid request']);
+
+        $email = urldecode($req->email);
+        $token = urldecode($req->_token);
+
+        $user = User::select('users.id','users.email')
+            ->join('tokens as t', 'users.id', '=', 't.user_id')
+            ->where('users.email', $email)
+            ->where('t.expire_at', '>', now())
+            ->where('t.is_expired', 0)
+            ->where('t.token', $token)
+            ->where('t.type', 'reset_password')
+            ->first();
+
+        if(!$user) return redirect()->route('forgotPassword')->with(['error' => 'Sorry! Password reset link expired']);
+
+        $settings = (object) [
+            'title' => 'Reset Password',
+            'description' => 'Reset Password page',
+            'keywords' => 'Reset password, page',
+        ];
+
+        return view('resetPassword', compact('settings', 'email', 'token'));
+    }
+
+    public function resetPasswordSubmit(Request $req)
+    {
+        $req->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:8|string|confirmed',
+            'token' => 'required|string',
+        ]);
+
+        $user = User::select('users.id','users.email')
+            ->join('tokens as t', 'users.id', '=', 't.user_id')
+            ->where('users.email', $req->email)
+            ->where('t.expire_at', '>', now())
+            ->where('t.is_expired', 0)
+            ->where('t.token', $req->token)
+            ->where('t.type', 'reset_password')
+            ->first();
+
+        if(!$user) return redirect()->route('signin')->with(['error' => 'Sorry! Password reset link expired.']);
+
+        $user->password = Hash::make($req->password);
+        if($user->save()){
+            Token::where('user_id', $user->id)->delete();
+            return redirect()->route('signin')->with(['success' => 'Congrats! Password changed successfully.']);
+        }
+
+        return redirect()->back()->with(['error' => 'Oops! Something went wrong, please try again.']);
+    }
 }

@@ -30,5 +30,15 @@
   - email: ```admin@panel.com```
   - password: ```password```
   
-##### That's all, your Admin Panel with SignIn and SignUp is ready to use. 
+* Change MAIL Server configurations in ```.env``` file, to use Forgot Password feature:
+  ```MAIL_MAILER=smtp```
+  ```MAIL_HOST=<--->```
+  ```MAIL_PORT=<--->```
+  ```MAIL_USERNAME=<--->```
+  ```MAIL_PASSWORD=<--->```
+  ```MAIL_ENCRYPTION="ssl"```
+  ```MAIL_FROM_ADDRESS=<--->```
+  ```MAIL_FROM_NAME="${APP_NAME}"```
+
+#### That's all, your Admin Panel with SignIn and SignUp is ready to use. 
 

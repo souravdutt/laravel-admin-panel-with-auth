@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+// Route::view('/forget', 'emails.forgot-password', ['name' => 'Sourav Dutt', 'link' => 'test-link']);
+
 
 Route::middleware('guest')->group(function () {
     Route::get('/', [UserController::class, 'signin'])->name('signin');
@@ -21,6 +23,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/signup', [UserController::class, 'signupSubmit'])->name('signup-submit');
     Route::get('/forgotPassword', [UserController::class, 'forgotPassword'])->name('forgotPassword');
     Route::post('/forgotPassword', [UserController::class, 'forgotPasswordSubmit'])->name('forgotPassword-submit');
+    Route::get('/reset-password', [UserController::class, 'resetPassword'])->name('resetPassword');
+    Route::post('/reset-password', [UserController::class, 'resetPasswordSubmit'])->name('resetPassword-submit');
 });
 
 Route::prefix('/user')->middleware('auth')->name('user.')->group(function () {
