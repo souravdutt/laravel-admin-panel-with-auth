@@ -234,4 +234,37 @@ class UserController extends Controller
             return redirect()->back()->with(['success' => 'Congrats! Profile updated successfully.']);
         }
     }
+
+    public function changePassword(Request $req)
+    {
+        $settings = (object) [
+            'title' => 'Change Password',
+            'description' => 'Change Password',
+            'keywords' => 'change password, page',
+        ];
+
+        return view('user.changePassword', compact('settings'));
+    }
+
+    public function changePasswordSubmit(Request $req)
+    {
+        $req->validate([
+            'old_password' => 'required|string|min:8|max:100',
+            'new_password' => 'required|string|min:8|max:100|confirmed',
+        ]);
+
+        $user = User::find(Auth::user()->id);
+        if(!$user)
+            return redirect()->back()->with(['error' => 'Oops! Something went wrong, please try again.']);
+
+        if(!Hash::check($req->old_password, $user->password))
+            return redirect()->back()->with(['error' => 'Oops! Incorrect Old Password.']);
+
+        $user->password = Hash::make($req->new_password);
+        if($user->save())
+            return redirect()->back()->with(['success' => 'Congrats! Password changed successfully.']);
+
+        return redirect()->back()->with(['error' => 'Oops! Something went wrong, please try again.']);
+
+    }
 }
