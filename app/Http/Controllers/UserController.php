@@ -195,4 +195,43 @@ class UserController extends Controller
 
         return redirect()->back()->with(['error' => 'Oops! Something went wrong, please try again.']);
     }
+
+    public function profile(Request $req)
+    {
+        $user = User::find(Auth::user()->id);
+
+        $settings = (object) [
+            'title' => 'Profile',
+            'description' => 'Profile page',
+            'keywords' => 'profile, page',
+        ];
+
+        return view('user.profile', compact('settings', 'user'));
+    }
+
+    public function profileSubmit(Request $req)
+    {
+        $req->validate([
+            'name' => 'required|string|min:3|max:100',
+            'mobile' => 'nullable|string|regex:/^[0-9]{10,12}$/',
+            'address' => 'nullable|string|min:3|max:100',
+            'city' => 'nullable|string|min:3|max:100',
+            'country' => 'nullable|string|min:3|max:100',
+            'zipcode' => 'nullable|string|regex:/^[0-9]{4,6}$/',
+        ],[
+            'mobile.regex' => 'Please enter a valid mobile number.',
+            'zipcode.regex' => 'Please enter a valid zipcode.',
+        ]);
+
+        $user = User::find(Auth::user()->id);
+        $user->name = $req->name;
+        $user->mobile = $req->mobile;
+        $user->address = $req->address;
+        $user->city = $req->city;
+        $user->country = $req->country;
+        $user->zipcode = $req->zipcode;
+        if($user->save()){
+            return redirect()->back()->with(['success' => 'Congrats! Profile updated successfully.']);
+        }
+    }
 }

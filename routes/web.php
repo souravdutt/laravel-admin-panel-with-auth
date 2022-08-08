@@ -29,5 +29,8 @@ Route::middleware('guest')->group(function () {
 
 Route::prefix('/user')->middleware('auth')->name('user.')->group(function () {
     Route::get('/', [UserController::class, 'dashboard'])->name('dashboard');
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::post('/profile', [UserController::class, 'profileSubmit'])->name('profile-submit');
+    Route::get('/change-password', [UserController::class, 'changePassword'])->name('changePassword');
     Route::get('/logout', [UserController::class, 'logout'])->name('logout');
 });

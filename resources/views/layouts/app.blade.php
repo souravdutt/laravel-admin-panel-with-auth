@@ -35,6 +35,10 @@
             $('.alert-autohide').fadeTo(5000, 500).slideUp(500, function() {
                 $('.alert-autohide').slideUp(500);
             });
+
+            $(document).on("submit", "form", function() {
+                $(this).find(":submit").attr("disabled", true).html("<i class='fa fa-spinner fa-spin'></i> Please wait...");
+            });
         });
     </script>
     @yield('scripts')
