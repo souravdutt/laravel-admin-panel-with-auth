@@ -6,7 +6,7 @@
 @section('content')
     <div class="container-fluid p-0">
 
-        <h1 class="h3 mb-3">Profile</h1>
+        <h1 class="h3 mb-3">Change Password</h1>
 
         <div class="row">
             <div class="col-sm-6 col-xxl-4">
@@ -41,7 +41,7 @@
                                     @error('new_password_confirmation')<span class="text-danger">{{ $message }}</span>@enderror
                                 </div>
                                 <div class="col-12 mb-2 mt-1">
-                                    <button class="btn btn-primary px-3"><i class="far fa-check-circle"></i> Update</button>
+                                    <button class="btn btn-primary px-3"><i class="far fa-check-circle"></i> Submit</button>
                                 </div>
                             </div>
                         </form>
